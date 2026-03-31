@@ -55,8 +55,9 @@ const allowedOrigins = [
 
   'http://localhost:5173',
   'https://riddo-tv.vercel.app',
-  'riddo-tv.vercel.app',
-  'www.riddo-tv.vercel.app',
+  'https://www.riddotv.co.in',
+  'www.riddotv.co.in',
+  'riddotv.co.in'
 
 ];
 
