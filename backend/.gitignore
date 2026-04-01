@@ -4,7 +4,7 @@ node_modules
 *.log
 
 # Uploaded media files (stored locally)
-uploads/
+
 
 # Firebase credentials
 ott-platfrom-9f249-firebase-adminsdk-fbsvc-e6feab6a97.json
