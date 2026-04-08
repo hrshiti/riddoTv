@@ -92,7 +92,7 @@ export default function AdminLogin() {
             color: '#1a1a1a',
             marginBottom: '8px'
           }}>
-            InPlay Admin
+            riddotv Admin
           </h1>
           <p style={{
             color: '#666',
@@ -238,7 +238,7 @@ export default function AdminLogin() {
             fontSize: '0.8rem',
             color: '#9ca3af'
           }}>
-            InPlay OTT Platform Admin Panel v1.0
+            riddotv OTT Platform Admin Panel v1.0
           </p>
         </div>
       </div>
