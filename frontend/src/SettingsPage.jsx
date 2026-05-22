@@ -167,6 +167,7 @@ export default function SettingsPage({ onLogout, currentUser, onUpdateUser }) {
             items: [
                 { id: 'help', icon: <HelpCircle size={20} />, label: 'Help Center', action: () => setActiveModal('help') },
                 { id: 'privacy', icon: <Shield size={20} />, label: 'Privacy Policy', action: () => setActiveModal('privacy') },
+                { id: 'terms', icon: <Shield size={20} />, label: 'Terms & Conditions', action: () => setActiveModal('terms') },
                 { id: 'about', icon: <Info size={20} />, label: 'About Riddo TV', action: () => setActiveModal('about') },
             ]
         }
@@ -397,6 +398,7 @@ export default function SettingsPage({ onLogout, currentUser, onUpdateUser }) {
                                     {activeModal === 'appearance' && 'Appearance'}
                                     {activeModal === 'help' && 'Help Center'}
                                     {activeModal === 'privacy' && 'Privacy Policy'}
+                                    {activeModal === 'terms' && 'Terms & Conditions'}
                                     {activeModal === 'about' && 'About Riddo TV'}
                                 </h2>
                             </div>
@@ -843,6 +845,18 @@ export default function SettingsPage({ onLogout, currentUser, onUpdateUser }) {
                                     <div
                                         style={{ whiteSpace: 'pre-wrap' }}
                                         dangerouslySetInnerHTML={{ __html: appSettings?.privacyPolicy?.content || 'Riddo TV ("we", "our", or "us") is committed to protecting your privacy...' }}
+                                    />
+                                </div>
+                            )}
+
+                            {/* TERMS & CONDITIONS CONTENT */}
+                            {activeModal === 'terms' && (
+                                <div style={{ color: '#aaa', fontSize: '0.9rem', lineHeight: '1.6' }}>
+                                    <h3 style={{ color: 'white', marginBottom: '16px' }}>Terms & Conditions</h3>
+                                    <p style={{ marginBottom: '16px' }}>Last updated: {appSettings?.termsAndConditions?.lastUpdated ? new Date(appSettings.termsAndConditions.lastUpdated).toLocaleDateString() : 'January 2026'}</p>
+                                    <div
+                                        style={{ whiteSpace: 'pre-wrap' }}
+                                        dangerouslySetInnerHTML={{ __html: appSettings?.termsAndConditions?.content || 'Riddo TV Terms & Conditions content goes here...' }}
                                     />
                                 </div>
                             )}
