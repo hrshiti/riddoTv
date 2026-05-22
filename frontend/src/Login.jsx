@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import authService from './services/api/authService';
+import appSettingsService from './services/api/appSettingsService';
 
 export default function Login({ onClose, onSwitchToSignup, onLoginSuccess }) {
   const [formData, setFormData] = useState({
@@ -11,6 +12,20 @@ export default function Login({ onClose, onSwitchToSignup, onLoginSuccess }) {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [appSettings, setAppSettings] = useState(null);
+  const [activeLegalModal, setActiveLegalModal] = useState(null); // 'terms' or 'privacy'
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const data = await appSettingsService.getSettings();
+        setAppSettings(data);
+      } catch (err) {
+        console.error("Failed to fetch app settings:", err);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -273,9 +288,159 @@ export default function Login({ onClose, onSwitchToSignup, onLoginSuccess }) {
                 </button>
               </p>
             </div>
+
+            {/* Legal Links Footer */}
+            <div style={{ textAlign: 'center', marginTop: '20px', borderTop: '1px solid #333', paddingTop: '12px' }}>
+              <p style={{ color: '#6b7280', fontSize: '0.8rem', lineHeight: '1.4' }}>
+                By signing in, you agree to our{' '}
+                <button
+                  type="button"
+                  onClick={() => setActiveLegalModal('terms')}
+                  style={{ color: '#9ca3af', background: 'none', border: 'none', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                >
+                  Terms & Conditions
+                </button>{' '}
+                and{' '}
+                <button
+                  type="button"
+                  onClick={() => setActiveLegalModal('privacy')}
+                  style={{ color: '#9ca3af', background: 'none', border: 'none', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                >
+                  Privacy Policy
+                </button>
+              </p>
+            </div>
           </form>
         </motion.div>
       </motion.div>
+
+      {/* Glassmorphic Legal Modal */}
+      <AnimatePresence>
+        {activeLegalModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.9)',
+              backdropFilter: 'blur(15px)',
+              zIndex: 20000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px'
+            }}
+            onClick={() => setActiveLegalModal(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.95, y: 20, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 250 }}
+              style={{
+                background: '#181818',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '20px',
+                width: '100%',
+                maxWidth: '550px',
+                maxHeight: '80vh',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '20px 24px',
+                borderBottom: '1px solid rgba(255,255,255,0.08)'
+              }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'white', margin: 0 }}>
+                  {activeLegalModal === 'terms' ? 'Terms & Conditions' : 'Privacy Policy'}
+                </h3>
+                <button
+                  onClick={() => setActiveLegalModal(null)}
+                  style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '32px',
+                    height: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    color: '#9ca3af',
+                    transition: 'all 0.2s',
+                    fontSize: '14px'
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Content */}
+              <div
+                className="legal-content-scrollbar"
+                style={{
+                  padding: '24px',
+                  overflowY: 'auto',
+                  flex: 1,
+                  color: '#d1d5db',
+                  fontSize: '0.95rem',
+                  lineHeight: '1.6',
+                  textAlign: 'left'
+                }}
+              >
+                {activeLegalModal === 'terms' ? (
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: appSettings?.termsAndConditions?.content || '<h3>Terms & Conditions</h3><p>Riddo TV Terms & Conditions content goes here...</p>'
+                    }}
+                  />
+                ) : (
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: appSettings?.privacyPolicy?.content || '<h3>Privacy Policy</h3><p>Riddo TV Privacy Policy content goes here...</p>'
+                    }}
+                  />
+                )}
+              </div>
+
+              {/* Footer */}
+              <div style={{
+                padding: '16px 24px',
+                borderTop: '1px solid rgba(255,255,255,0.08)',
+                textAlign: 'right',
+                background: '#141414'
+              }}>
+                <button
+                  onClick={() => setActiveLegalModal(null)}
+                  style={{
+                    background: '#ff0a16',
+                    color: 'white',
+                    border: 'none',
+                    padding: '10px 24px',
+                    borderRadius: '10px',
+                    fontWeight: '700',
+                    fontSize: '0.9rem',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 15px rgba(255, 10, 22, 0.3)'
+                  }}
+                >
+                  I Understand
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </AnimatePresence>
   );
 }
