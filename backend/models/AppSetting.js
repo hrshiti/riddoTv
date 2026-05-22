@@ -23,6 +23,16 @@ const appSettingSchema = new mongoose.Schema({
             default: Date.now
         }
     },
+    termsAndConditions: {
+        content: {
+            type: String,
+            default: 'InPlay terms and conditions content goes here.'
+        },
+        lastUpdated: {
+            type: Date,
+            default: Date.now
+        }
+    },
     aboutInPlay: {
         description: {
             type: String,
