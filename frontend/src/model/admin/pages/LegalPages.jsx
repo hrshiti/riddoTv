@@ -12,6 +12,10 @@ export default function LegalPages() {
             content: '',
             lastUpdated: new Date()
         },
+        termsAndConditions: {
+            content: '',
+            lastUpdated: new Date()
+        },
         aboutInPlay: {
             description: '',
             version: '',
@@ -35,7 +39,20 @@ export default function LegalPages() {
             setIsLoading(true);
             const data = await appSettingsService.getSettings();
             if (data) {
-                setSettings(data);
+                setSettings(prev => ({
+                    ...prev,
+                    ...data,
+                    termsAndConditions: {
+                        content: '',
+                        lastUpdated: new Date(),
+                        ...(data.termsAndConditions || {})
+                    },
+                    privacyPolicy: {
+                        content: '',
+                        lastUpdated: new Date(),
+                        ...(data.privacyPolicy || {})
+                    }
+                }));
             }
         } catch (err) {
             console.error("Failed to fetch settings", err);
@@ -101,6 +118,7 @@ export default function LegalPages() {
     const tabs = [
         { id: 'help', label: 'Help Center' },
         { id: 'privacy', label: 'Privacy Policy' },
+        { id: 'terms', label: 'Terms & Conditions' },
         { id: 'about', label: 'About Riddo TV' }
     ];
 
@@ -264,6 +282,36 @@ export default function LegalPages() {
                                 })}
                                 style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #d1d5db', minHeight: '400px', fontSize: '0.95rem', lineHeight: '1.6', resize: 'vertical' }}
                                 placeholder="Enter policy content here..."
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* TERMS & CONDITIONS */}
+                {activeTab === 'terms' && (
+                    <div>
+                        <div style={{ marginBottom: '24px' }}>
+                            <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px' }}>Last Updated Date</label>
+                            <input
+                                type="date"
+                                value={settings.termsAndConditions?.lastUpdated ? new Date(settings.termsAndConditions.lastUpdated).toISOString().split('T')[0] : ''}
+                                onChange={(e) => setSettings({
+                                    ...settings,
+                                    termsAndConditions: { ...settings.termsAndConditions, lastUpdated: new Date(e.target.value) }
+                                })}
+                                style={{ width: '200px', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px' }}>Terms & Conditions Content (Plain Text or HTML)</label>
+                            <textarea
+                                value={settings.termsAndConditions?.content || ''}
+                                onChange={(e) => setSettings({
+                                    ...settings,
+                                    termsAndConditions: { ...settings.termsAndConditions, content: e.target.value }
+                                })}
+                                style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #d1d5db', minHeight: '400px', fontSize: '0.95rem', lineHeight: '1.6', resize: 'vertical' }}
+                                placeholder="Enter terms and conditions content here..."
                             />
                         </div>
                     </div>

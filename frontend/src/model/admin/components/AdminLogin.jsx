@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, Eye, EyeOff } from 'lucide-react';
 import adminAuthService from '../../../services/api/adminAuthService';
+import appSettingsService from '../../../services/api/appSettingsService';
 
 export default function AdminLogin() {
   const [formData, setFormData] = useState({
@@ -11,7 +12,21 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [appSettings, setAppSettings] = useState(null);
+  const [activeLegalModal, setActiveLegalModal] = useState(null); // 'terms' or 'privacy'
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const data = await appSettingsService.getSettings();
+        setAppSettings(data);
+      } catch (err) {
+        console.error("Failed to fetch app settings:", err);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -240,8 +255,158 @@ export default function AdminLogin() {
           }}>
             riddotv OTT Platform Admin Panel v1.0
           </p>
+
+          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'center', gap: '16px' }}>
+            <button
+              onClick={() => setActiveLegalModal('terms')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#6b7280',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+                padding: 0
+              }}
+            >
+              Terms & Conditions
+            </button>
+            <button
+              onClick={() => setActiveLegalModal('privacy')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#6b7280',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+                padding: 0
+              }}
+            >
+              Privacy Policy
+            </button>
+          </div>
         </div>
       </div>
+
+      {activeLegalModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 10000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}
+          onClick={() => setActiveLegalModal(null)}
+        >
+          <div
+            style={{
+              background: 'white',
+              border: '1px solid #e5e7eb',
+              borderRadius: '16px',
+              width: '100%',
+              maxWidth: '550px',
+              maxHeight: '80vh',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '20px 24px',
+              borderBottom: '1px solid #f3f4f6'
+            }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#1a1a1a', margin: 0 }}>
+                {activeLegalModal === 'terms' ? 'Terms & Conditions' : 'Privacy Policy'}
+              </h3>
+              <button
+                onClick={() => setActiveLegalModal(null)}
+                style={{
+                  background: '#f3f4f6',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: '#4b5563',
+                  fontSize: '14px',
+                  transition: 'all 0.2s'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Content */}
+            <div
+              style={{
+                padding: '24px',
+                overflowY: 'auto',
+                flex: 1,
+                color: '#4b5563',
+                fontSize: '0.95rem',
+                lineHeight: '1.6',
+                textAlign: 'left'
+              }}
+            >
+              {activeLegalModal === 'terms' ? (
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: appSettings?.termsAndConditions?.content || '<h3>Terms & Conditions</h3><p>Riddo TV Terms & Conditions content goes here...</p>'
+                  }}
+                />
+              ) : (
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: appSettings?.privacyPolicy?.content || '<h3>Privacy Policy</h3><p>Privacy Policy content goes here...</p>'
+                  }}
+                />
+              )}
+            </div>
+
+            {/* Footer */}
+            <div style={{
+              padding: '16px 24px',
+              borderTop: '1px solid #f3f4f6',
+              textAlign: 'right',
+              background: '#f9fafb'
+            }}>
+              <button
+                onClick={() => setActiveLegalModal(null)}
+                style={{
+                  background: 'linear-gradient(135deg, #46d369 0%, #28a745 100%)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '10px 24px',
+                  borderRadius: '8px',
+                  fontWeight: '700',
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(70, 211, 105, 0.2)'
+                }}
+              >
+                I Understand
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

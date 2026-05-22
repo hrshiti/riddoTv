@@ -44,6 +44,7 @@ const updateAppSettings = async (req, res) => {
             // Update fields
             if (req.body.helpCenter) settings.helpCenter = req.body.helpCenter;
             if (req.body.privacyPolicy) settings.privacyPolicy = req.body.privacyPolicy;
+            if (req.body.termsAndConditions) settings.termsAndConditions = req.body.termsAndConditions;
             if (req.body.aboutInPlay) settings.aboutInPlay = req.body.aboutInPlay;
         }
 
